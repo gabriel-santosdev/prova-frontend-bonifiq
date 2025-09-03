@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Site Fake com Widget</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 2rem;
+            background: #f2f2f2;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            max-width: 500px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Bem-vindo ao Site Fake</h1>
+    <p>
+        Este é um site qualquer apenas para demonstrar como o widget pode ser inserido em páginas externas.
+    </p>
+
+    <script>
+        // simula usuário logado
+        window.loggedUserId = 2;
+
+        // responde ao postMessage enviado pelo iframe
+        window.addEventListener("message", (event) => {
+            if (event.data?.type === "GET_USER_ID") {
+                event.source.postMessage(
+                    { type: "USER_ID", value: window.loggedUserId },
+                    event.origin
+                );
+            }
+        });
+    </script>
+
+    <!-- carrega o widget -->
+    <script src="http://localhost:5173/widget.js"></script>
+
+</body>
+
+</html>

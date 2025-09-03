@@ -1,26 +1,16 @@
 import { useEffect, useState } from "react";
-import { Container, Typography, Card, CardContent, CircularProgress, Alert } from "@mui/material";
+import { Container, CircularProgress, Alert, Paper } from "@mui/material";
+import { User, Post } from "./types";
+import UserInfo from "./components/UserInfo";
+import PostsList from "./components/PostsList";
 
-interface User {
-    id: number;
-    name: string;
-    email: string;
-}
-
-interface Post {
-    id: number;
-    title: string;
-    body: string;
-}
-
-function App() {
+export default function App() {
     const [userId, setUserId] = useState<number | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [posts, setPosts] = useState<Post[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // captura o userId do parent via postMessage
     useEffect(() => {
         window.parent.postMessage({ type: "GET_USER_ID" }, "*");
 
@@ -34,61 +24,56 @@ function App() {
         return () => window.removeEventListener("message", handler);
     }, []);
 
-    // busca APIs
     useEffect(() => {
         if (!userId) return;
 
-        async function fetchData() {
+        const fetchData = async () => {
             try {
                 setLoading(true);
                 const userRes = await fetch(`https://jsonplaceholder.typicode.com/users/${userId}`);
                 if (!userRes.ok) throw new Error("Usuário não encontrado");
-                const userData = await userRes.json();
-                setUser(userData);
+                setUser(await userRes.json());
 
                 const postsRes = await fetch(`https://jsonplaceholder.typicode.com/posts?userId=${userId}`);
-                const postsData = await postsRes.json();
-                setPosts(postsData);
+                setPosts(await postsRes.json());
             } catch (err: any) {
                 setError(err.message);
             } finally {
                 setLoading(false);
             }
-        }
+        };
 
         fetchData();
     }, [userId]);
 
-    if (loading) return <CircularProgress />;
-    if (error) return <Alert severity="error">{error}</Alert>;
+    if (loading)
+        return (
+            <Container sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
+                <CircularProgress />
+            </Container>
+        );
+
+    if (error)
+        return (
+            <Container sx={{ mt: 4 }}>
+                <Alert severity="error">{error}</Alert>
+            </Container>
+        );
 
     return (
-        <Container>
-            {user && (
-                <Card sx={{ mb: 2 }}>
-                    <CardContent>
-                        <Typography variant="h6">{user.name}</Typography>
-                        <Typography color="text.secondary">{user.email}</Typography>
-                    </CardContent>
-                </Card>
-            )}
-
-            <Typography variant="h6" sx={{ mb: 1 }}>
-                Posts
-            </Typography>
-
-            {posts.map((post) => (
-                <Card key={post.id} sx={{ mb: 1 }}>
-                    <CardContent>
-                        <Typography variant="subtitle1">{post.title}</Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            {post.body}
-                        </Typography>
-                    </CardContent>
-                </Card>
-            ))}
-        </Container>
+        <Paper
+            sx={{
+                p: 2,
+                maxWidth: 320,
+                height: "100%",
+                overflowY: "auto",
+                borderRadius: 3,
+                boxShadow: 5,
+                backgroundColor: "#f9f9ff",
+            }}
+        >
+            {user && <UserInfo user={user} />}
+            {posts.length > 0 && <PostsList posts={posts} />}
+        </Paper>
     );
 }
-
-export default App;
