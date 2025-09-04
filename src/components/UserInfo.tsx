@@ -1,5 +1,5 @@
 import { Card, CardContent, Typography } from "@mui/material";
-import { User } from "../types";
+import type { User } from "../types";
 
 interface Props {
     user: User;

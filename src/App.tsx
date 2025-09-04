@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Container, CircularProgress, Alert, Paper } from "@mui/material";
-import { User, Post } from "./types";
+import { Container, CircularProgress, Alert, Paper, Box, IconButton } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import type { User, Post } from "./types";
 import UserInfo from "./components/UserInfo";
 import PostsList from "./components/PostsList";
 
@@ -11,6 +12,7 @@ export default function App() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    // captura userId do parent via postMessage
     useEffect(() => {
         window.parent.postMessage({ type: "GET_USER_ID" }, "*");
 
@@ -24,6 +26,7 @@ export default function App() {
         return () => window.removeEventListener("message", handler);
     }, []);
 
+    // busca dados do usuário e posts
     useEffect(() => {
         if (!userId) return;
 
@@ -46,6 +49,7 @@ export default function App() {
         fetchData();
     }, [userId]);
 
+    // loading e erro
     if (loading)
         return (
             <Container sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
@@ -60,9 +64,11 @@ export default function App() {
             </Container>
         );
 
+    // renderização do widget com botão interno de fechar
     return (
         <Paper
             sx={{
+                position: "relative",
                 p: 2,
                 maxWidth: 320,
                 height: "100%",
@@ -72,6 +78,20 @@ export default function App() {
                 backgroundColor: "#f9f9ff",
             }}
         >
+            {/* Botão de fechar interno */}
+            <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
+                <IconButton
+                    size="small"
+                    onClick={() => {
+                        // envia mensagem para o parent (widget.js) para fechar o iframe
+                        window.parent.postMessage({ type: "CLOSE_WIDGET" }, "*");
+                    }}
+                >
+                    <CloseIcon />
+                </IconButton>
+            </Box>
+
+            {/* Conteúdo do widget */}
             {user && <UserInfo user={user} />}
             {posts.length > 0 && <PostsList posts={posts} />}
         </Paper>

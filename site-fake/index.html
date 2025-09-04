@@ -40,7 +40,13 @@
                     event.origin
                 );
             }
+
+            if (event.data?.type === "CLOSE_WIDGET") {
+                iframe.style.display = "none";
+                button.innerHTML = "&#x25B2;"; // seta para cima
+            }
         });
+
     </script>
 
     <!-- carrega o widget -->
