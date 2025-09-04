@@ -13,30 +13,28 @@
     const button = document.createElement("button");
     button.id = buttonId;
     button.innerHTML = "&#x25B2;"; // seta para cima fechada inicialmente
-    button.style.position = "fixed";
-    button.style.bottom = "20px";
-    button.style.right = "20px";
-    button.style.zIndex = "9999";
-    button.style.width = "50px";
-    button.style.height = "50px";
-    button.style.borderRadius = "50%";
-    button.style.border = "none";
-    button.style.background = "#6f00ff";
-    button.style.color = "#fff";
-    button.style.fontSize = "24px";
-    button.style.cursor = "pointer";
-    button.style.boxShadow = "0 4px 8px rgba(0,0,0,0.3)";
-    button.style.display = "flex";
-    button.style.alignItems = "center";
-    button.style.justifyContent = "center";
-    button.style.transition = "transform 0.2s";
+    Object.assign(button.style, {
+        position: "fixed",
+        bottom: "20px",
+        right: "20px",
+        zIndex: "9999",
+        width: "50px",
+        height: "50px",
+        borderRadius: "50%",
+        border: "none",
+        background: "#6f00ff",
+        color: "#fff",
+        fontSize: "24px",
+        cursor: "pointer",
+        boxShadow: "0 4px 8px rgba(0,0,0,0.3)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        transition: "transform 0.2s",
+    });
 
-    button.addEventListener("mouseover", () => {
-        button.style.transform = "scale(1.1)";
-    });
-    button.addEventListener("mouseout", () => {
-        button.style.transform = "scale(1)";
-    });
+    button.addEventListener("mouseover", () => (button.style.transform = "scale(1.1)"));
+    button.addEventListener("mouseout", () => (button.style.transform = "scale(1)"));
 
     document.body.appendChild(button);
 
@@ -44,46 +42,21 @@
     const iframe = document.createElement("iframe");
     iframe.id = widgetId;
     iframe.src = iframeSrc;
-    iframe.style.width = "90vw";
-    iframe.style.maxWidth = "320px";
-    iframe.style.height = "80vh";
-    iframe.style.maxHeight = "600px";
-    iframe.style.position = "fixed";
-    iframe.style.bottom = "80px";
-    iframe.style.right = "20px";
-    iframe.style.border = "1px solid #ccc";
-    iframe.style.borderRadius = "12px";
-    iframe.style.display = "none";
-    iframe.style.zIndex = "9998";
-    iframe.style.background = "#fff";
-    iframe.style.boxShadow = "0 8px 16px rgba(0,0,0,0.3)";
-    iframe.style.overflow = "hidden";
-
-    // cria botão X interno no iframe
-    const closeBtn = document.createElement("button");
-    closeBtn.innerHTML = "&times;";
-    closeBtn.style.position = "absolute";
-    closeBtn.style.top = "10px";
-    closeBtn.style.right = "10px";
-    closeBtn.style.border = "none";
-    closeBtn.style.background = "transparent";
-    closeBtn.style.color = "#6f00ff";
-    closeBtn.style.fontSize = "20px";
-    closeBtn.style.cursor = "pointer";
-    closeBtn.style.zIndex = "10000";
-
-    closeBtn.addEventListener("click", () => {
-        iframe.style.display = "none";
-        button.innerHTML = "&#x25B2;"; // seta para cima quando fechado
-    });
-
-    // adiciona o closeBtn ao iframe depois de carregar
-    iframe.addEventListener("load", () => {
-        try {
-            iframe.contentDocument.body.appendChild(closeBtn);
-        } catch (err) {
-            // erros cross-domain serão ignorados
-        }
+    Object.assign(iframe.style, {
+        width: "90vw",
+        maxWidth: "320px",
+        height: "80vh",
+        maxHeight: "600px",
+        position: "fixed",
+        bottom: "80px",
+        right: "20px",
+        border: "1px solid #ccc",
+        borderRadius: "12px",
+        display: "none",
+        zIndex: "9998",
+        background: "#fff",
+        boxShadow: "0 8px 16px rgba(0,0,0,0.3)",
+        overflow: "hidden",
     });
 
     document.body.appendChild(iframe);
@@ -92,10 +65,25 @@
     button.addEventListener("click", () => {
         if (iframe.style.display === "none") {
             iframe.style.display = "block";
-            button.innerHTML = "&#x25BC;";
+            button.innerHTML = "&#x25BC;"; // seta para baixo
         } else {
             iframe.style.display = "none";
+            button.innerHTML = "&#x25B2;"; // seta para cima
+        }
+    });
+
+    // listener para fechar via postMessage do React
+    window.addEventListener("message", (event) => {
+        if (event.data?.type === "CLOSE_WIDGET") {
+            iframe.style.display = "none";
             button.innerHTML = "&#x25B2;";
+        }
+
+        if (event.data?.type === "GET_USER_ID") {
+            event.source.postMessage(
+                { type: "USER_ID", value: window.loggedUserId },
+                event.origin
+            );
         }
     });
 })();

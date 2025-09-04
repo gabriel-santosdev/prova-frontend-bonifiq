@@ -29,21 +29,26 @@
     </p>
 
     <script>
-        // simula usuário logado
         window.loggedUserId = 2;
 
-        // responde ao postMessage enviado pelo iframe
         window.addEventListener("message", (event) => {
-            if (event.data?.type === "GET_USER_ID") {
-                event.source.postMessage(
-                    { type: "USER_ID", value: window.loggedUserId },
-                    event.origin
-                );
-            }
+            const iframeEl = document.getElementById("prova-frontend-bonifiq-widget");
+            const buttonEl = document.getElementById("prova-frontend-bonifiq-button");
 
             if (event.data?.type === "CLOSE_WIDGET") {
-                iframe.style.display = "none";
-                button.innerHTML = "&#x25B2;"; // seta para cima
+                if (iframeEl && buttonEl) {
+                    iframeEl.style.display = "none";
+                    buttonEl.innerHTML = "&#x25B2;";
+                }
+            }
+
+            if (event.data?.type === "GET_USER_ID") {
+                if (iframeEl) {
+                    event.source.postMessage(
+                        { type: "USER_ID", value: window.loggedUserId },
+                        event.origin
+                    );
+                }
             }
         });
 
