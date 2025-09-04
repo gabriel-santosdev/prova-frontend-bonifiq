@@ -19,6 +19,9 @@ export default function App() {
         const handler = (event: MessageEvent) => {
             if (event.data?.type === "USER_ID") {
                 setUserId(event.data.value);
+            } else {
+                // fallback adicionado para testar na porta 5173 do Vite quando ainda não temos o site que será implementado o widget
+                setUserId(2);
             }
         };
 
