@@ -1,19 +1,24 @@
+Este é o texto que você me enviou, formatado em Markdown:
+
 # prova-frontend-bonifiq
+
+-----
 
 ## 🧪 Visão Geral
 
-Este projeto é uma prova prática de Front-End. Ele consiste em:
+Este projeto é uma prova prática de Front-End, que consiste em:
 
-1. **Aplicação React + Vite + TypeScript** que exibe informações de um usuário e seus posts.  
-2. **Widget em JavaScript** (`widget.js`) que cria um botão flutuante e um iframe, permitindo incorporar a aplicação React em qualquer site.  
-3. **Site fake** para testar o widget localmente.  
+1.  Uma **aplicação React + Vite + TypeScript** para exibir informações de um usuário e seus posts.
+2.  Um **widget em JavaScript** (`widget.js`) que cria um botão flutuante e um iframe, permitindo incorporar a aplicação React em qualquer site.
+3.  Um **site fake** para testar o widget localmente.
 
-O widget é **responsivo**, com botão flutuante com setas, botão X interno no React que fecha o widget, e suporte a **cross-origin** via `postMessage`.  
+O widget é **responsivo**, possui um botão flutuante com setas para abrir e fechar o iframe, um botão "X" interno no React para fechar o widget, e suporte a **cross-origin** via `postMessage`.
 
----
+-----
 
 ## 📁 Estrutura do Projeto
 
+```
 prova-frontend-bonifiq/
 ├─ public/
 │ └─ widget.js # Script do widget a ser incluído em qualquer site
@@ -30,100 +35,137 @@ prova-frontend-bonifiq/
 ├─ tsconfig.json
 ├─ vite.config.ts
 └─ README.md
+```
 
-yaml
-Copy code
-
----
+-----
 
 ## ⚡ Tecnologias
 
-- **React 18 + Vite + TypeScript**
-- **Material UI** para estilização
-- **react-icons** para ícones (X interno, setas)
-- **Fetch API** para consumir endpoints:
-  - `https://jsonplaceholder.typicode.com/users/<ID>`
-  - `https://jsonplaceholder.typicode.com/posts?userId=<ID>`
+  - **React 18 + Vite + TypeScript**
+  - **Material UI** para estilização
+  - **react-icons** para ícones (X interno, setas)
+  - **Fetch API** para consumir endpoints:
+      - `https://jsonplaceholder.typicode.com/users/<ID>`
+      - `https://jsonplaceholder.typicode.com/posts?userId=<ID>`
 
----
+-----
 
 ## 🚀 Como Rodar
 
 ### 1️⃣ Rodar a aplicação React (iframe)
 
-1. Instale dependências:
+1.  Instale as dependências:
+
+<!-- end list -->
 
 ```bash
 npm install
-Execute o projeto em modo desenvolvimento:
+```
 
-bash
-Copy code
+2.  Execute o projeto em modo desenvolvimento:
+
+<!-- end list -->
+
+```bash
 npm run dev
-A aplicação React estará disponível em http://localhost:5173/.
+```
 
-Este é o endereço usado pelo widget para carregar o iframe localmente.
+A aplicação React estará disponível em `http://localhost:5173/`. Este é o endereço usado pelo widget para carregar o iframe localmente.
 
-Para gerar a build (produção):
+Para gerar a **build** (produção):
 
-bash
-Copy code
+```bash
 npm run build
-Os arquivos finais ficarão em dist/.
+```
 
-2️⃣ Rodar o site fake
-Abra a pasta site-fake/ no seu editor ou terminal.
+Os arquivos finais estarão na pasta `dist/`.
 
-Basta abrir o arquivo index.html no navegador, ou servir via live-server:
+### 2️⃣ Rodar o site fake
 
-bash
-Copy code
-npx serve site-fake
-# ou
-live-server site-fake
-O site fake deve ter um snippet para incluir o widget:
+O site fake serve para testar o widget localmente sem precisar de outro projeto.
 
-html
-Copy code
+1.  Entre na pasta do site fake:
+
+<!-- end list -->
+
+```bash
+cd site-fake
+```
+
+2.  Sirva o site usando um servidor local:
+
+<!-- end list -->
+
+```bash
+serve .
+# ou, se tiver live-server instalado:
+live-server .
+```
+
+3.  Abra o navegador no endereço indicado pelo servidor (ex: `http://localhost:5000`).
+
+O arquivo `index.html` do site fake já inclui o widget:
+
+```html
 <script src="../public/widget.js"></script>
 <script>
   window.loggedUserId = 2; // ID do usuário logado
 </script>
-Ao abrir, você verá o botão flutuante no canto inferior direito.
+```
 
-3️⃣ Inserir o Widget em Qualquer Site
-Copie o script public/widget.js para o seu site.
+Ao abrir a página, você verá o botão flutuante no canto inferior direito. O botão de seta (▲/▼) alterna a abertura do iframe. O botão "X" interno, dentro do iframe, envia uma mensagem para fechar o widget.
 
-Inclua no <head> ou antes do fechamento do <body>:
+### 3️⃣ Inserir o Widget em Qualquer Site
 
-html
-Copy code
+1.  Copie o script `public/widget.js` para o seu site.
+
+2.  Inclua-o no `<head>` ou antes do fechamento do `<body>`:
+
+
+
+```html
 <script src="widget.js"></script>
-<script>
-  window.loggedUserId = 2; // ID do usuário logado
-</script>
-O botão flutuante aparecerá automaticamente.
+  <script>
+        window.loggedUserId = 2;
 
-O botão seta ▲/▼ alterna a abertura do iframe.
+        window.addEventListener("message", (event) => {
+            const iframeEl = document.getElementById("prova-frontend-bonifiq-widget");
+            const buttonEl = document.getElementById("prova-frontend-bonifiq-button");
 
-O botão X interno dentro do iframe envia mensagem para fechar o widget.
+            if (event.data?.type === "CLOSE_WIDGET") {
+                if (iframeEl && buttonEl) {
+                    iframeEl.style.display = "none";
+                    buttonEl.innerHTML = "&#x25B2;";
+                }
+            }
 
-🔹 Comunicação entre Widget e React
-Parent → Iframe:
+            if (event.data?.type === "GET_USER_ID") {
+                if (iframeEl) {
+                    event.source.postMessage(
+                        { type: "USER_ID", value: window.loggedUserId },
+                        event.origin
+                    );
+                }
+            }
+        });
 
-O iframe solicita o userId com GET_USER_ID.
+    </script>
+```
 
-O parent responde via postMessage com USER_ID.
+O botão flutuante aparecerá automaticamente. O botão de seta (▲/▼) alterna a abertura do iframe, e o botão "X" interno dentro do iframe envia uma mensagem para fechá-lo.
 
-Iframe → Parent:
+-----
 
-O botão X interno envia CLOSE_WIDGET para o parent.
+### 🔹 Comunicação entre Widget e React
 
-O widget fecha o iframe automaticamente.
+  - **Parent → Iframe**: O iframe solicita o `userId` com `GET_USER_ID`, e o parent responde via `postMessage` com `USER_ID`.
+  - **Iframe → Parent**: O botão "X" interno envia `CLOSE_WIDGET` para o parent, e o widget fecha o iframe automaticamente.
 
-📦 Tipos TypeScript
-ts
-Copy code
+-----
+
+### 📦 Tipos TypeScript
+
+```typescript
 // src/types/index.ts
 export interface User {
   id: number;
@@ -136,16 +178,19 @@ export interface Post {
   title: string;
   body: string;
 }
-🎨 Layout do Widget
-Botão flutuante: círculo roxo, seta ▲/▼, hover com scale.
+```
 
-Iframe: max-width 320px, max-height 600px, sombra, borda arredondada.
+### 🎨 Layout do Widget
 
-Interno React: Paper do Material UI com overflow scroll, lista de posts, botão X para fechar.
+  - **Botão flutuante**: Círculo roxo com seta ▲/▼ e efeito de `scale` no hover.
+  - **Iframe**: `max-width` 320px, `max-height` 600px, com sombra e borda arredondada.
+  - **Interno React**: Usa `Paper` do Material UI com `overflow-scroll`, lista de posts e botão "X" para fechar.
 
-⚠️ Observações
-O iframe funciona em cross-origin graças ao postMessage.
+-----
 
-Se usar em produção, ajuste iframeSrc para apontar para os arquivos build (dist/index.html).
+### ⚠️ Observações
 
-Loading e erros são tratados dentro do React (CircularProgress e Alert).
+  - O iframe funciona em **cross-origin** graças ao `postMessage`.
+  - Para usar em produção, ajuste `iframeSrc` para apontar para os arquivos de build (`dist/index.html`).
+  - `Loading` e erros são tratados dentro do React (com `CircularProgress` e `Alert`).
+  - Sempre use `cd site-fake` e `serve .` (ou `live-server .`) para testar o widget localmente.
