@@ -12,7 +12,7 @@ export default function App() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    // captura userId do parent via postMessage
+    // OBS:  captura userId do parent via postMessage para poder lidarmos com domínios diferente
     useEffect(() => {
         window.parent.postMessage({ type: "GET_USER_ID" }, "*");
 
@@ -26,7 +26,6 @@ export default function App() {
         return () => window.removeEventListener("message", handler);
     }, []);
 
-    // busca dados do usuário e posts
     useEffect(() => {
         if (!userId) return;
 
@@ -49,7 +48,6 @@ export default function App() {
         fetchData();
     }, [userId]);
 
-    // loading e erro
     if (loading)
         return (
             <Container sx={{ display: "flex", justifyContent: "center", mt: 4 }}>
@@ -64,7 +62,6 @@ export default function App() {
             </Container>
         );
 
-    // renderização do widget com botão interno de fechar
     return (
         <Paper
             sx={{
@@ -78,12 +75,10 @@ export default function App() {
                 backgroundColor: "#f9f9ff",
             }}
         >
-            {/* Botão de fechar interno */}
             <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 1 }}>
                 <IconButton
                     size="small"
                     onClick={() => {
-                        // envia mensagem para o parent (widget.js) para fechar o iframe
                         window.parent.postMessage({ type: "CLOSE_WIDGET" }, "*");
                     }}
                 >
@@ -91,7 +86,6 @@ export default function App() {
                 </IconButton>
             </Box>
 
-            {/* Conteúdo do widget */}
             {user && <UserInfo user={user} />}
             {posts.length > 0 && <PostsList posts={posts} />}
         </Paper>

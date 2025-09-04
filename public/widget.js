@@ -12,7 +12,7 @@
     // cria botão flutuante com ícone
     const button = document.createElement("button");
     button.id = buttonId;
-    button.innerHTML = "&#x25B2;"; // seta para cima fechada inicialmente
+    button.innerHTML = "&#x25B2;";
     Object.assign(button.style, {
         position: "fixed",
         bottom: "20px",
@@ -61,18 +61,16 @@
 
     document.body.appendChild(iframe);
 
-    // alterna abrir/fechar com seta
     button.addEventListener("click", () => {
         if (iframe.style.display === "none") {
             iframe.style.display = "block";
-            button.innerHTML = "&#x25BC;"; // seta para baixo
+            button.innerHTML = "&#x25BC;";
         } else {
             iframe.style.display = "none";
-            button.innerHTML = "&#x25B2;"; // seta para cima
+            button.innerHTML = "&#x25B2;";
         }
     });
 
-    // listener para fechar via postMessage do React
     window.addEventListener("message", (event) => {
         if (event.data?.type === "CLOSE_WIDGET") {
             iframe.style.display = "none";
